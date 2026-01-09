@@ -1,0 +1,14 @@
+name: Daily Autotask Sync
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 2:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Autotask Sync
+        run: |
+          curl -X POST "${{ secrets.AUTOTASK_SYNC_URL }}"
