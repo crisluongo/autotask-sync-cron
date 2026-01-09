@@ -15,4 +15,7 @@ jobs:
     steps:
       - name: Call Autotask Sync
         run: |
-          curl -sS -X POST "${{ secrets.AUTOTASK_SYNC_URL }}"
+          echo "Calling Autotask Sync..."
+          curl -sS -X POST "$AUTOTASK_SYNC_URL"
+        env:
+          AUTOTASK_SYNC_URL: ${{ secrets.AUTOTASK_SYNC_URL }}
