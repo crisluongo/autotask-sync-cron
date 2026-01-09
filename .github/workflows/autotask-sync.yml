@@ -1,11 +1,11 @@
 name: Autotask Daily Sync
 
 on:
+  # Runs daily at 2:00 AM UTC
   schedule:
-    # Runs daily at 2:00 AM UTC
     - cron: "0 2 * * *"
 
-  # Allows manual trigger from GitHub UI
+  # Allows you to manually run it from the GitHub UI
   workflow_dispatch:
 
 jobs:
@@ -14,8 +14,16 @@ jobs:
 
     steps:
       - name: Call Autotask Sync
-        run: |
-          echo "Calling Autotask Sync..."
-          curl -sS -X POST "$AUTOTASK_SYNC_URL"
         env:
           AUTOTASK_SYNC_URL: ${{ secrets.AUTOTASK_SYNC_URL }}
+        run: |
+          set -euo pipefail
+
+          # Strip any hidden newline/carriage-return characters from the secret
+          CLEAN_URL="$(printf '%s' "$AUTOTASK_SYNC_URL")"
+
+          echo "Calling sync endpoint..."
+          # Use -L to follow redirects just in case, and -sS for clean output + errors
+          curl -sS -L -X POST "$CLEAN_URL"
+          echo ""
+          echo "Done."
