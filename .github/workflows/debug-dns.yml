@@ -1,0 +1,34 @@
+name: Debug DNS (Supabase)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show derived host and test DNS
+        env:
+          AUTOTASK_SYNC_URL: ${{ secrets.AUTOTASK_SYNC_URL }}
+        run: |
+          set -euo pipefail
+
+          # Strip common hidden chars (newline, CR, tabs, spaces)
+          CLEAN_URL="$(printf '%s' "$AUTOTASK_SYNC_URL" | tr -d '\r\n\t ')"
+
+          echo "URL length: ${#CLEAN_URL}"
+
+          # Extract hostname from URL
+          HOST="$(echo "$CLEAN_URL" | sed -E 's#https?://([^/]+).*#\1#')"
+          echo "HOST: $HOST"
+          echo "HOST length: ${#HOST}"
+
+          echo ""
+          echo "getent hosts:"
+          getent hosts "$HOST" || true
+
+          echo ""
+          echo "nslookup:"
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq dnsutils
+          nslookup "$HOST" || true
